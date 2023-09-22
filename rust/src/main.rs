@@ -6,10 +6,15 @@
 
 mod core;
 mod lang;
+mod render;
 //mod comp;
+
+use sdl2::event::Event;
+use sdl2::keyboard::Keycode;
 
 use crate::core::*;
 use crate::lang::*;
+use crate::render::*;
 //use crate::comp::*;
 
 fn main() {
@@ -247,24 +252,66 @@ fn main() {
     ~ +1
   "); 
 
+  define(book, "NAll", "
+    $ (0 a b)
+    & (0 a (0 @True b))
+    ~ @ALLC
+  ");  
+
+  define(book, "ALLC", "
+    $ (0 (0 @ALLS (0 @ALLZ a)) a)
+  ");  
+
+  define(book, "ALLS", "
+    $ (0 (1 a b) (0 * (0 (0 c (0 d e)) (0 * e))))
+    & (0 b (0 @Fals d))
+    ~ @ALLC
+    & (0 a (0 @True c))
+    ~ @ALLC
+  ");  
+
+  define(book, "ALLZ", "
+    $ (0 a (0 * (0 (0 a b) b)))
+  ");
+
+  define(book, "Main", "
+    $ a
+    & (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 * (0 b b)) c) (0 * c)) d) (0 * d)) e) (0 * e)) f) (0 * f)) g) (0 * g)) h) (0 * h)) i) (0 * i)) j) (0 * j)) k) (0 * k)) l) (0 * l)) m) (0 * m)) n) (0 * n)) o) (0 * o)) p) (0 * p)) q) (0 * q)) r) (0 * r)) a)
+    ~ @NAll
+  ");  
+
   // Initializes the net
   let net = &mut Net::new(1 << 28);
-  net.boot(name_to_val("ex4"));
+  let mut image = [0; 256 * 256 * 3];
+  let (mut event_pump, mut canvas) = render::setup_window();
 
-  // Marks initial time
-  let start = std::time::Instant::now();
+  'running: loop {
+    for event in event_pump.poll_iter() {
+      match event {
+        Event::Quit { .. } |
+        Event::KeyDown { keycode: Some(Keycode::Escape), .. } => break 'running,
+        _ => (),
+      };
+    };
 
-  // Computes its normal form
-  net.expand(book, Ptr::new(VRR,0));
-  net.reduce(book);
-  net.normal(book);
-
-  //Shows results and stats
-  println!("[net]\n{}", show_net(&net));
-  println!("RWTS: {}", net.rwts);
-  println!("DREF: {}", net.dref);
-  println!("TIME: {:.3} s", (start.elapsed().as_millis() as f64) / 1000.0);
-  println!("RPS : {:.3} million", (net.rwts as f64) / (start.elapsed().as_millis() as f64) / 1000.0);
-
-  //println!("{}", &compile_book(&book));
+    // Marks initial time
+    let start = std::time::Instant::now();
+    
+    net.boot(name_to_val("Main"));
+    net.expand(book, Ptr::new(VRR,0));
+    net.reduce(book);
+    // Computes its normal form
+    net.normal(book);
+    
+    //Shows results and stats
+    println!("RWTS: {}", net.rwts);
+    println!("DREF: {}", net.dref);
+    println!("TIME: {:.3} s", (start.elapsed().as_millis() as f64) / 1000.0);
+    println!("RPS : {:.3} million", (net.rwts as f64) / (start.elapsed().as_millis() as f64) / 1000.0);
+    
+    render::net_bin_tree_to_image(net, &mut image);
+    render::render_image(&mut canvas, &mut image);
+    
+    println!("FPS : {:.3}", (1.0 / (start.elapsed().as_millis() as f64) * 1000.0));
+  }
 }
