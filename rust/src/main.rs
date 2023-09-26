@@ -252,34 +252,159 @@ fn main() {
     ~ +1
   "); 
 
-  define(book, "NAll", "
-    $ (0 a b)
-    & (0 a (0 @True b))
-    ~ @ALLC
-  ");  
-
-  define(book, "ALLC", "
-    $ (0 (0 @ALLS (0 @ALLZ a)) a)
-  ");  
-
-  define(book, "ALLS", "
-    $ (0 (1 a b) (0 * (0 (0 c (0 d e)) (0 * e))))
-    & (0 b (0 @Fals d))
-    ~ @ALLC
-    & (0 a (0 @True c))
-    ~ @ALLC
-  ");  
-
-  define(book, "ALLZ", "
+  define(book, "1", "
+    $ (0 a (0 b (0 (0 a (0 b c)) (0 * c))))
+  ");
+  define(book, "2", "
     $ (0 a (0 * (0 (0 a b) b)))
   ");
-
+  define(book, "3", "
+    $ (0 * (0 a a))
+  ");
+  define(book, "4", "
+    $ (0 a (0 (0 a b) (0 * b)))
+  ");
+  define(book, "5", "
+    $ (0 (0 a (0 b c)) (0 b (0 a c)))
+  ");
+  define(book, "6", "
+    $ (0 a (0 * a))
+  ");
+  define(book, "7", "
+    $ (0 * (0 a a))
+  ");
+  define(book, "8", "
+    $ (0 a b)
+    & (0 a (0 @6 b))
+    ~ @9
+  ");
+  define(book, "9", "
+    $ (0 (0 @A (0 @B a)) a)
+  ");
+  define(book, "A", "
+    $ (0 (1 a b) (0 * c))
+    & (0 b (0 @7 d))
+    ~ @9
+    & (0 e (0 d c))
+    ~ @1
+    & (0 a (0 @6 e))
+    ~ @9
+  ");
+  define(book, "B", "
+    $ (0 a b)
+    & (0 a b)
+    ~ @2
+  ");
+  define(book, "C", "
+    $ (0 (0 @D (0 @E a)) a)
+  ");
+  define(book, "D", "
+    $ (0 a (0 b (0 (1 c d) e)))
+    & (0 b (0 d f))
+    ~ @C
+    & (0 g (0 f e))
+    ~ @1
+    & (0 a (0 c g))
+    ~ @C
+  ");
+  define(book, "E", "
+    $ (0 a (0 (0 a b) c))
+    & (0 b c)
+    ~ @2
+  ");
+  define(book, "F", "
+    $ (0 a b)
+    & (0 a (0 @5 b))
+    ~ @C
+  ");
+  define(book, "G", "
+    $ a
+    & (0 @3 a)
+    ~ @4
+  ");
+  define(book, "H", "
+    $ a
+    & (0 @G a)
+    ~ @4
+  ");
+  define(book, "I", "
+    $ a
+    & (0 @H a)
+    ~ @4
+  ");
+  define(book, "J", "
+    $ a
+    & (0 @I a)
+    ~ @4
+  ");
+  define(book, "K", "
+    $ a
+    & (0 @J a)
+    ~ @4
+  ");
+  define(book, "L", "
+    $ a
+    & (0 @K a)
+    ~ @4
+  ");
+  define(book, "M", "
+    $ a
+    & (0 @L a)
+    ~ @4
+  ");
+  define(book, "N", "
+    $ a
+    & (0 @M a)
+    ~ @4
+  ");
+  define(book, "O", "
+    $ a
+    & (0 @N a)
+    ~ @4
+  ");
+  define(book, "P", "
+    $ a
+    & (0 @O a)
+    ~ @4
+  ");
+  define(book, "Q", "
+    $ a
+    & (0 @P a)
+    ~ @4
+  ");
+  define(book, "R", "
+    $ a
+    & (0 @Q a)
+    ~ @4
+  ");
+  define(book, "S", "
+    $ a
+    & (0 @R a)
+    ~ @4
+  ");
+  define(book, "T", "
+    $ a
+    & (0 @S a)
+    ~ @4
+  ");
+  define(book, "U", "
+    $ a
+    & (0 @T a)
+    ~ @4
+  ");
+  define(book, "V", "
+    $ a
+    & (0 @U a)
+    ~ @4
+  ");
   define(book, "Main", "
     $ a
-    & (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 (0 * (0 b b)) c) (0 * c)) d) (0 * d)) e) (0 * e)) f) (0 * f)) g) (0 * g)) h) (0 * h)) i) (0 * i)) j) (0 * j)) k) (0 * k)) l) (0 * l)) m) (0 * m)) n) (0 * n)) o) (0 * o)) p) (0 * p)) q) (0 * q)) r) (0 * r)) a)
-    ~ @NAll
-  ");  
-
+    & (0 b a)
+    ~ @F
+    & (0 @V b)
+    ~ @8
+  "); 
+  
   // Initializes the net
   let net = &mut Net::new(1 << 28);
   let mut image = [0; 256 * 256 * 3];

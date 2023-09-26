@@ -9,6 +9,38 @@ use sdl2::EventPump;
 use sdl2::{event::Event, surface::Surface};
 use std::time::{Duration, Instant};
 
+pub fn _left(net: &mut Net, node: Ptr) -> Ptr {
+    *net.target(Ptr::new(VR1, node.val())).unwrap()
+}
+pub fn _right(net: &mut Net, node: Ptr) -> Ptr {
+    *net.target(Ptr::new(VR2, node.val())).unwrap()
+}
+
+// to visit left node: left left
+// to visit right node: left right left
+// to visit boolean value: right left left
+// to check if boolean value is false: visit left, it should be ERA
+pub fn left(net: &mut Net, node: Ptr) -> Ptr {
+    let x = node;
+    let x = _left(net, x);
+    let x = _left(net, x);
+    x
+}
+pub fn right(net: &mut Net, node: Ptr) -> Ptr {
+    let x = node;
+    let x = _left(net, x);
+    let x = _right(net, x);
+    let x = _left(net, x);
+    x
+}
+pub fn is_bool_false(net: &mut Net, node: Ptr) -> bool {
+    let x = _right(net, node);
+    let x = _left(net, x);
+    let x = _left(net, x);
+
+    _left(net, x).is_era()
+}
+
 const IMAGE_SIZE: usize = 256;
 const DEPTH: u16 = 16;
 
@@ -44,29 +76,27 @@ pub fn net_bin_tree_to_image(net: &mut Net, image: &mut [u8; IMAGE_SIZE * IMAGE_
         };
 
         if depth == DEPTH {
-            if net.target(Ptr::new(VR1, node.val())).unwrap().is_era() {
-                image[image_i..image_i + 3].copy_from_slice(&[0x00, 0x00, 0x00]);
+            if is_bool_false(net, node) {
+                image[image_i..image_i + 3].copy_from_slice(&[0x00; 3]);
             } else {
-                image[image_i..image_i + 3].copy_from_slice(&[0xff, 0xff, 0xff]);
+                image[image_i..image_i + 3].copy_from_slice(&[0xff; 3]);
             }
             image_i += 3;
             stack.pop();
         } else {
             match visited {
                 Unvisited => {
-                    let left = *net.target(Ptr::new(VR1, node.val())).unwrap();
                     *visited = VisitedLeft;
                     stack.push(StackEntry {
-                        node: left,
+                        node: left(net, node),
                         visited: Unvisited,
                         depth: depth + 1,
                     });
                 }
                 VisitedLeft => {
-                    let right = *net.target(Ptr::new(VR2, node.val())).unwrap();
                     *visited = VisitedBoth;
                     stack.push(StackEntry {
-                        node: right,
+                        node: right(net, node),
                         visited: Unvisited,
                         depth: depth + 1,
                     });
@@ -143,7 +173,7 @@ pub fn render_image(canvas: &mut Canvas<Window>, image: &mut [u8; IMAGE_SIZE * I
             image,
             IMAGE_SIZE as u32,
             IMAGE_SIZE as u32,
-            (IMAGE_SIZE as u32) * 3,
+            (IMAGE_SIZE * 3) as u32,
             PixelFormatEnum::RGB24,
         )
         .unwrap()
